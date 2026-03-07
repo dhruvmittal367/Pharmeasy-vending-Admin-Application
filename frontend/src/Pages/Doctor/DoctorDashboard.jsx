@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api";
+import axios from "axios";
 import "../../css/DoctorDashboard.css";
 import DoctorSidebar from "./DoctorSidebar";
+
+const API = "http://localhost:8080";
 
 function DoctorDashboard() {
   const navigate = useNavigate();
@@ -22,32 +25,30 @@ function DoctorDashboard() {
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
   const [recentPrescriptions, setRecentPrescriptions] = useState([]);
 
-  // Doctor info
-  const [doctorInfo, setDoctorInfo] = useState({
-    name: "Dr. [Name]",
-    specialization: "General Physician",
-    experience: "10+ years"
-  });
+  // Doctor profile from API
+  const [doctorProfile, setDoctorProfile] = useState(null);
 
   useEffect(() => {
+    fetchDoctorProfile();
     fetchDashboardData();
-
-    // Get doctor info from localStorage
-    const doctor = JSON.parse(localStorage.getItem("user") || "{}");
-    if (doctor.name) {
-      setDoctorInfo({
-        name: `Dr. ${doctor.name}`,
-        specialization: doctor.specialization || "General Physician",
-        experience: doctor.experience || "10+ years"
-      });
-    }
   }, []);
+
+  // ── Fetch real doctor profile ──────────────────────────────
+  const fetchDoctorProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${API}/api/doctor/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setDoctorProfile(res.data);
+    } catch (err) {
+      console.error("Failed to fetch doctor profile:", err);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-
-      // Fetch stats (adjust API endpoints as per your backend)
       const [patientsRes, appointmentsRes, prescriptionsRes] = await Promise.all([
         api.get("/api/patients").catch(() => ({ data: { data: [] } })),
         api.get("/api/appointments").catch(() => ({ data: { data: [] } })),
@@ -58,7 +59,6 @@ function DoctorDashboard() {
       const appointments = appointmentsRes.data.data || [];
       const prescriptions = prescriptionsRes.data.data || [];
 
-      // Calculate stats
       setStats({
         totalPatients: patients.length,
         todayAppointments: appointments.filter(apt => isToday(apt.date)).length,
@@ -66,11 +66,9 @@ function DoctorDashboard() {
         totalRevenue: prescriptions.reduce((sum, p) => sum + (p.totalAmount || 0), 0)
       });
 
-      // Recent data
       setRecentPatients(patients.slice(0, 5));
       setUpcomingAppointments(appointments.slice(0, 5));
       setRecentPrescriptions(prescriptions.slice(0, 5));
-
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
     } finally {
@@ -80,41 +78,32 @@ function DoctorDashboard() {
 
   const isToday = (dateString) => {
     if (!dateString) return false;
-    const today = new Date().toDateString();
-    const date = new Date(dateString).toDateString();
-    return today === date;
+    return new Date().toDateString() === new Date(dateString).toDateString();
   };
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-  // Quick Actions
+  // ── Derived display values ─────────────────────────────────
+  const doctorName = doctorProfile
+    ? `Dr. ${doctorProfile.firstName} ${doctorProfile.lastName}`
+    : "Dr. ...";
+
+  const specialization = doctorProfile?.specialization || "General Physician";
+  const experience = doctorProfile?.experienceYears
+    ? `${doctorProfile.experienceYears} yrs exp`
+    : null;
+  const rating = doctorProfile?.rating || null;
+  const consultationFee = doctorProfile?.consultationFee || null;
+  const verificationStatus = doctorProfile?.verificationStatus || "PENDING";
+  const initials = doctorProfile
+    ? `${doctorProfile.firstName?.charAt(0)}${doctorProfile.lastName?.charAt(0)}`
+    : "Dr";
+
   const quickActions = [
-    {
-      title: "Add Prescription",
-      icon: "💊",
-      color: "#4CAF50",
-      action: () => navigate("/doctor/medicines")
-    },
-    {
-      title: "View Patients",
-      icon: "👥",
-      color: "#2196F3",
-      action: () => navigate("/doctor/patients")
-    },
-    {
-      title: "Appointments",
-      icon: "📅",
-      color: "#FF9800",
-      action: () => navigate("/doctor/appointments")
-    },
-    {
-      title: "Reports",
-      icon: "📊",
-      color: "#9C27B0",
-      action: () => navigate("/doctor/reports")
-    }
+    { title: "Add Prescription", icon: "💊", color: "#4CAF50", action: () => navigate("/Doctor/medicine") },
+    { title: "View Patients",    icon: "👥", color: "#2196F3", action: () => navigate("/Doctor/patients") },
+    { title: "Appointments",     icon: "📅", color: "#FF9800", action: () => navigate("/Doctor/appointments") },
+    { title: "Reports",          icon: "📊", color: "#9C27B0", action: () => navigate("/Doctor/reports") }
   ];
 
   return (
@@ -122,6 +111,7 @@ function DoctorDashboard() {
       <DoctorSidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
 
       <div className={`doctor-main ${sidebarOpen ? "main-shifted" : "main-full"}`}>
+
         {/* Toggle Button */}
         <button className="sidebar-toggle" onClick={toggleSidebar}>
           {sidebarOpen ? (
@@ -135,22 +125,46 @@ function DoctorDashboard() {
           )}
         </button>
 
-        {/* Dashboard Header */}
+        {/* ── Dashboard Header ── */}
         <div className="dashboard-header2">
           <div className="welcome-section">
-            <h1>Welcome back, {doctorInfo.name}! 👋</h1>
-            <p className="welcome-subtitle">Here's what's happening with your patients today</p>
+            {/* Doctor Avatar + Name */}
+            <div className="doctor-identity">
+              <div className="doctor-avatar-lg">{initials}</div>
+              <div>
+                <h1>Welcome back, {doctorName}! 👋</h1>
+                <div className="doctor-meta-tags">
+                  <span className="meta-tag tag-spec">🩺 {specialization}</span>
+                  {experience && <span className="meta-tag tag-exp">⏱ {experience}</span>}
+                  {consultationFee && <span className="meta-tag tag-fee">₹{consultationFee} / visit</span>}
+                  <span className={`meta-tag tag-verify ${verificationStatus === "APPROVED" ? "verified" : "pending"}`}>
+                    {verificationStatus === "APPROVED" ? "✅ Verified" : "⏳ Pending Verification"}
+                  </span>
+                </div>
+                <p className="welcome-subtitle">Here's what's happening with your patients today</p>
+              </div>
+            </div>
           </div>
-          <div className="header-info">
+
+          <div className="header-right">
+            {/* Rating badge if available */}
+            {rating > 0 && (
+              <div className="rating-badge">
+                <span className="rating-star">⭐</span>
+                <span className="rating-val">{Number(rating).toFixed(1)}</span>
+                <span className="rating-label">Rating</span>
+              </div>
+            )}
             <div className="date-display">
               <span className="date-icon">📅</span>
               <span>{new Date().toLocaleDateString("en-US", {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
               })}</span>
             </div>
+            {/* Edit Profile Button */}
+            <button className="btn-edit-profile" onClick={() => navigate("/Doctor/complete-profile")}>
+              ✏️ Edit Profile
+            </button>
           </div>
         </div>
 
@@ -169,9 +183,7 @@ function DoctorDashboard() {
                   <h3>{stats.totalPatients}</h3>
                   <p>Total Patients</p>
                 </div>
-                <div className="stat-trend">
-                  <span className="trend-up">↑ 12%</span>
-                </div>
+                <div className="stat-trend"><span className="trend-up">↑ 12%</span></div>
               </div>
 
               <div className="stat-card stat-green">
@@ -180,9 +192,7 @@ function DoctorDashboard() {
                   <h3>{stats.todayAppointments}</h3>
                   <p>Today's Appointments</p>
                 </div>
-                <div className="stat-trend">
-                  <span className="trend-up">↑ 8%</span>
-                </div>
+                <div className="stat-trend"><span className="trend-up">↑ 8%</span></div>
               </div>
 
               <div className="stat-card stat-orange">
@@ -191,9 +201,7 @@ function DoctorDashboard() {
                   <h3>{stats.pendingPrescriptions}</h3>
                   <p>Pending Prescriptions</p>
                 </div>
-                <div className="stat-trend">
-                  <span className="trend-down">↓ 3%</span>
-                </div>
+                <div className="stat-trend"><span className="trend-down">↓ 3%</span></div>
               </div>
 
               <div className="stat-card stat-purple">
@@ -202,9 +210,7 @@ function DoctorDashboard() {
                   <h3>₹{stats.totalRevenue.toLocaleString()}</h3>
                   <p>Total Revenue</p>
                 </div>
-                <div className="stat-trend">
-                  <span className="trend-up">↑ 15%</span>
-                </div>
+                <div className="stat-trend"><span className="trend-up">↑ 15%</span></div>
               </div>
             </div>
 
@@ -235,12 +241,7 @@ function DoctorDashboard() {
               <div className="dashboard-card">
                 <div className="card-header">
                   <h2>📅 Upcoming Appointments</h2>
-                  <button
-                    className="view-all-btn"
-                    onClick={() => navigate("/doctor/appointments")}
-                  >
-                    View All →
-                  </button>
+                  <button className="view-all-btn" onClick={() => navigate("/Doctor/appointments")}>View All →</button>
                 </div>
                 <div className="card-content">
                   {upcomingAppointments.length === 0 ? (
@@ -273,12 +274,7 @@ function DoctorDashboard() {
               <div className="dashboard-card">
                 <div className="card-header">
                   <h2>👥 Recent Patients</h2>
-                  <button
-                    className="view-all-btn"
-                    onClick={() => navigate("/doctor/patients")}
-                  >
-                    View All →
-                  </button>
+                  <button className="view-all-btn" onClick={() => navigate("/Doctor/patients")}>View All →</button>
                 </div>
                 <div className="card-content">
                   {recentPatients.length === 0 ? (
@@ -302,7 +298,7 @@ function DoctorDashboard() {
                               className="btn-small"
                               onClick={() => {
                                 localStorage.setItem("selectedPatient", JSON.stringify(patient));
-                                navigate("/doctor/medicines");
+                                navigate("/Doctor/medicine");
                               }}
                             >
                               Add Rx
@@ -319,12 +315,7 @@ function DoctorDashboard() {
               <div className="dashboard-card dashboard-card-full">
                 <div className="card-header">
                   <h2>💊 Recent Prescriptions</h2>
-                  <button
-                    className="view-all-btn"
-                    onClick={() => navigate("/doctor/prescriptions")}
-                  >
-                    View All →
-                  </button>
+                  <button className="view-all-btn" onClick={() => navigate("/Doctor/prescriptions")}>View All →</button>
                 </div>
                 <div className="card-content">
                   {recentPrescriptions.length === 0 ? (
@@ -348,11 +339,7 @@ function DoctorDashboard() {
                         <tbody>
                           {recentPrescriptions.map((prescription, index) => (
                             <tr key={index}>
-                              <td>
-                                <div className="table-patient">
-                                  <strong>{prescription.patient?.name || "N/A"}</strong>
-                                </div>
-                              </td>
+                              <td><strong>{prescription.patient?.name || "N/A"}</strong></td>
                               <td>{prescription.date ? new Date(prescription.date).toLocaleDateString() : "N/A"}</td>
                               <td>{prescription.medicines?.length || 0} items</td>
                               <td>₹{prescription.totalAmount || 0}</td>
@@ -381,19 +368,21 @@ function DoctorDashboard() {
                 <div className="activity-stats">
                   <div className="activity-item">
                     <span className="activity-label">Patients Treated</span>
-                    <span className="activity-value">42</span>
+                    <span className="activity-value">{doctorProfile?.totalConsultations || 0}</span>
                   </div>
                   <div className="activity-item">
                     <span className="activity-label">Prescriptions Written</span>
-                    <span className="activity-value">38</span>
+                    <span className="activity-value">{stats.pendingPrescriptions}</span>
                   </div>
                   <div className="activity-item">
                     <span className="activity-label">Appointments Completed</span>
-                    <span className="activity-value">40</span>
+                    <span className="activity-value">{stats.todayAppointments}</span>
                   </div>
                   <div className="activity-item">
                     <span className="activity-label">Average Rating</span>
-                    <span className="activity-value">4.8 ⭐</span>
+                    <span className="activity-value">
+                      {doctorProfile?.rating > 0 ? `${Number(doctorProfile.rating).toFixed(1)} ⭐` : "N/A"}
+                    </span>
                   </div>
                 </div>
               </div>

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import DoctorDashboard from "./Pages/Doctor/DoctorDashboard";
 import DoctorMedicine from "./Pages/Doctor/DoctorMedicine";
 import DoctorPrescriptions from "./Pages/Doctor/DoctorPrescriptions";
+import DoctorCompleteProfile from "./Pages/Doctor/DoctorCompleteProfile";
 import Patients from "./Pages/Doctor/Patients";
 import Login from "./Pages/Login.jsx";
 import Dashboard from "./Pages/Dashboard.jsx";
@@ -20,6 +21,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/Doctor/dashboard" element={<DoctorDashboard />} />
+        <Route path="/Doctor/complete-profile" element={<DoctorCompleteProfile />} />
         <Route path="/Doctor/medicine" element={<DoctorMedicine />} />
         <Route path="/Doctor/patients" element={<Patients />} />
         <Route path="/Doctor/prescriptions" element={<DoctorPrescriptions />} />

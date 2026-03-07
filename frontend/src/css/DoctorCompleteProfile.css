@@ -1,0 +1,287 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.profile-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
+  font-family: 'Nunito', sans-serif;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.profile-container {
+  width: 100%;
+  max-width: 860px;
+}
+
+/* ── Header ── */
+.profile-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.profile-header .badge {
+  display: inline-block;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 6px 18px;
+  border-radius: 50px;
+  margin-bottom: 14px;
+}
+
+.profile-header h1 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e1b4b;
+  margin-bottom: 8px;
+}
+
+.profile-header p {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+/* ── Progress Bar ── */
+.progress-wrap {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 28px;
+  margin-bottom: 28px;
+  box-shadow: 0 2px 12px rgba(99, 102, 241, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.progress-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #6366f1;
+  white-space: nowrap;
+}
+
+.progress-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: #e0e7ff;
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: 50px;
+  transition: width 0.5s ease;
+}
+
+.progress-pct {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #374151;
+  white-space: nowrap;
+}
+
+/* ── Card ── */
+.profile-card {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.10);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.card-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 32px 0;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e1b4b;
+  border-bottom: 1px solid #f3f4f6;
+  padding-bottom: 16px;
+  margin-bottom: 4px;
+}
+
+.card-section-title .section-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  background: #eef2ff;
+}
+
+/* ── Form Grid ── */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 24px 32px;
+}
+
+.form-grid.three-col {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.form-grid.one-col {
+  grid-template-columns: 1fr;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #374151;
+  letter-spacing: 0.3px;
+}
+
+.form-group label .required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 11px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: 'Nunito', sans-serif;
+  color: #1f2937;
+  background: #fafafa;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  background: #fff;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #9ca3af;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* ── Submit ── */
+.submit-wrap {
+  padding: 0 32px 32px;
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  border: none;
+  padding: 13px 36px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+}
+
+.btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-skip {
+  background: transparent;
+  color: #6b7280;
+  border: 1.5px solid #e5e7eb;
+  padding: 13px 24px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-skip:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+}
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 14px 24px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #fff;
+  z-index: 9999;
+  animation: slideUp 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.toast.success { background: linear-gradient(135deg, #10b981, #059669); }
+.toast.error   { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .form-grid,
+  .form-grid.three-col {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-header h1 { font-size: 1.5rem; }
+  .form-grid { padding: 16px 18px; }
+  .card-section-title { padding: 16px 18px 12px; }
+  .submit-wrap { padding: 0 18px 20px; flex-direction: column; }
+  .btn-save, .btn-skip { width: 100%; text-align: center; }
+}
