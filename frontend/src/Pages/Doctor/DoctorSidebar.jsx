@@ -4,7 +4,7 @@ import "../../css/DoctorLayout.css";
 function DoctorSidebar({ isOpen, toggleSidebar }) {
   const navigate = useNavigate();
 
-  const logout = () => {
+   const logout = () => {
     localStorage.clear();
     navigate("/");
   };
@@ -19,7 +19,7 @@ function DoctorSidebar({ isOpen, toggleSidebar }) {
         <p onClick={() => navigate("/doctor/prescriptions")}>Prescriptions</p>
         <p>Reports</p>
 
-        <button onClick={logout}>Logout</button>
+       <button onClick={logout}>Logout</button>
       </div>
     </div>
   );
