@@ -27,7 +27,6 @@ public class DoctorService {
         boolean profileExists = doctorRepository.existsByUserId(user.getId());
 
         if (!profileExists) {
-            // Return basic user info, profile incomplete
             return buildResponseFromUser(user, null);
         }
 
@@ -82,17 +81,23 @@ public class DoctorService {
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
     }
 
+    // ✅ FIX: converts empty strings to null for all optional fields
+    // This prevents Duplicate entry '' errors on UNIQUE columns in MySQL
+    private String nullIfBlank(String value) {
+        return (value != null && !value.isBlank()) ? value : null;
+    }
+
     private void mapRequestToDoctor(DoctorProfileRequest request, Doctor doctor) {
         doctor.setSpecialization(request.getSpecialization());
-        doctor.setQualification(request.getQualification());
+        doctor.setQualification(nullIfBlank(request.getQualification()));
         doctor.setExperienceYears(request.getExperienceYears());
-        doctor.setRegistrationNumber(request.getRegistrationNumber());
-        doctor.setRegistrationCouncil(request.getRegistrationCouncil());
+        doctor.setRegistrationNumber(nullIfBlank(request.getRegistrationNumber()));  // ✅ UNIQUE column — must be null not ""
+        doctor.setRegistrationCouncil(nullIfBlank(request.getRegistrationCouncil()));
         doctor.setRegistrationYear(request.getRegistrationYear());
-        doctor.setBio(request.getBio());
+        doctor.setBio(nullIfBlank(request.getBio()));
         doctor.setConsultationFee(request.getConsultationFee());
-        doctor.setLanguagesSpoken(request.getLanguagesSpoken());
-        doctor.setAwards(request.getAwards());
+        doctor.setLanguagesSpoken(nullIfBlank(request.getLanguagesSpoken()));
+        doctor.setAwards(nullIfBlank(request.getAwards()));
     }
 
     private DoctorProfileResponse buildResponseFromUser(AppUser user, Doctor doctor) {

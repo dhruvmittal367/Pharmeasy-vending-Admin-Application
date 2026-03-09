@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api";
 import "../../css/DoctorCompleteProfile.css";
-
-const API = "http://localhost:8080";
 
 const SPECIALIZATIONS = [
   "General Physician", "Cardiology", "Dermatology", "Endocrinology",
@@ -24,7 +22,6 @@ const COUNCILS = [
 
 function DoctorCompleteProfile() {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
 
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
@@ -48,16 +45,12 @@ function DoctorCompleteProfile() {
   const progress = Math.round((filledFields / totalFields) * 100);
 
   useEffect(() => {
-    if (!token) { navigate("/"); return; }
     loadProfileIfExists();
   }, []);
 
-  // Load existing data if profile already created (edit mode)
   const loadProfileIfExists = async () => {
     try {
-      const res = await axios.get(`${API}/api/doctor/profile`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get("/api/doctor/profile");
       const data = res.data;
       if (data.profileComplete) {
         setIsEditMode(true);
@@ -89,6 +82,8 @@ function DoctorCompleteProfile() {
   };
 
   const handleSubmit = async () => {
+      console.log("TOKEN AT SUBMIT:", localStorage.getItem("token"));
+        console.log("IS EDIT MODE:", isEditMode);
     if (!form.specialization) {
       showToast("Specialization is required!", "error");
       return;
@@ -97,20 +92,16 @@ function DoctorCompleteProfile() {
       setSaving(true);
       const payload = {
         ...form,
-        experienceYears:  form.experienceYears  ? parseInt(form.experienceYears)    : null,
-        registrationYear: form.registrationYear ? parseInt(form.registrationYear)   : null,
-        consultationFee:  form.consultationFee  ? parseFloat(form.consultationFee)  : null,
+        experienceYears:  form.experienceYears  ? parseInt(form.experienceYears)   : null,
+        registrationYear: form.registrationYear ? parseInt(form.registrationYear)  : null,
+        consultationFee:  form.consultationFee  ? parseFloat(form.consultationFee) : null,
       };
 
       if (isEditMode) {
-        await axios.put(`${API}/api/doctor/profile`, payload, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.put("/api/doctor/profile", payload);
         showToast("Profile updated successfully! ✅");
       } else {
-        await axios.post(`${API}/api/doctor/profile`, payload, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.post("/api/doctor/profile", payload);
         showToast("Profile saved successfully! 🎉");
       }
       setTimeout(() => navigate("/Doctor/dashboard"), 1500);
@@ -126,7 +117,6 @@ function DoctorCompleteProfile() {
     <div className="profile-page">
       <div className="profile-container">
 
-        {/* Header */}
         <div className="profile-header">
           <div className="badge">{isEditMode ? "Edit Profile" : "One-time Setup"}</div>
           <h1>{isEditMode ? "Update Your Profile" : "Complete Your Doctor Profile"}</h1>
@@ -136,7 +126,6 @@ function DoctorCompleteProfile() {
           }</p>
         </div>
 
-        {/* Progress */}
         <div className="progress-wrap">
           <span className="progress-label">Profile Completion</span>
           <div className="progress-bar-bg">

@@ -5,6 +5,7 @@ import com.company.admin.admin_backend.dto.DoctorProfileResponse;
 import com.company.admin.admin_backend.entity.AppUser;
 import com.company.admin.admin_backend.service.DoctorService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +22,14 @@ public class DoctorController {
         this.doctorService = doctorService;
     }
 
+    // DoctorController.java
+
     @GetMapping("/profile")
     public ResponseEntity<DoctorProfileResponse> getProfile(
             @AuthenticationPrincipal AppUser appUser) {
+        if (appUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(doctorService.getProfile(appUser.getUsername()));
     }
 
@@ -31,6 +37,9 @@ public class DoctorController {
     public ResponseEntity<DoctorProfileResponse> createProfile(
             @AuthenticationPrincipal AppUser appUser,
             @Valid @RequestBody DoctorProfileRequest request) {
+        if (appUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(doctorService.createProfile(appUser.getUsername(), request));
     }
 
@@ -38,6 +47,9 @@ public class DoctorController {
     public ResponseEntity<DoctorProfileResponse> updateProfile(
             @AuthenticationPrincipal AppUser appUser,
             @Valid @RequestBody DoctorProfileRequest request) {
+        if (appUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(doctorService.updateProfile(appUser.getUsername(), request));
     }
 

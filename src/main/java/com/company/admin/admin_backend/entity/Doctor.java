@@ -23,7 +23,8 @@ public class Doctor {
 
     private Integer experienceYears;
 
-    @Column(unique = true, length = 100)
+    // Doctor.java entity
+    @Column(name = "registration_number", unique = true, nullable = true)
     private String registrationNumber;
 
     @Column(length = 255)

@@ -64,6 +64,13 @@ public class JwtFilter extends OncePerRequestFilter {
         String username = jwtUtil.extractUsername(token);
         AppUser user = userRepository.findByUsername(username).orElse(null);
 
+        System.out.println("=== JWT DEBUG ===");
+        System.out.println("URI: " + request.getRequestURI());         // ← add
+        System.out.println("Method: " + request.getMethod());          // ← add
+        System.out.println("Username from token: '" + username + "'"); // ← add (note the quotes)
+        System.out.println("User found in DB: " + (user != null));
+        System.out.println("Auth before filter: " + SecurityContextHolder.getContext().getAuthentication()); // ← add
+
         if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             SimpleGrantedAuthority authority =
