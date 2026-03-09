@@ -54,8 +54,7 @@ public class SecurityConfig {
                         // 🔐 ROLE BASED APIs
 
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/doctor/**").hasAuthority("ROLE_DOCTOR")
-
+                        .requestMatchers("/api/doctor/**").permitAll()
                         .requestMatchers("/api/machine/**").hasRole("MACHINE_ADMIN")
 
 
