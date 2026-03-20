@@ -4,7 +4,7 @@ import axios from "axios";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import "../css/Login.css";
 
-const API = "http://localhost:8080";
+const API = "http://localhost:8082";
 
 function Login() {
   const navigate = useNavigate();
